@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Newsletter — Henrique Athayde</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Reddit+Mono:wght@300;400;500;600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #FEFCF5;
+      --blue:  #006BEE;
+      --green: #42DC5A;
+      --pink:  #FF8356;
+      --mono:  'Reddit Mono', monospace;
+      --sans:  'Epilogue', sans-serif;
+      --pad:   clamp(48px, 7vw, 128px);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--blue);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ───────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      padding: 26px var(--pad);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    header.scrolled { border-color: rgba(0, 107, 238, 0.15); }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .avatar-dot {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .avatar-dot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .site-name {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 0; }
+    .nav-btn {
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--blue);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.18s;
+      white-space: nowrap;
+    }
+    .nav-btn:hover { color: var(--pink); }
+    .nav-btn.current { color: var(--pink); }
+
+    /* ── PAGE LAYOUT ──────────────────────────── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 72px var(--pad) 140px;
+    }
+
+    /* ── SUBSCRIBE BLOCK ──────────────────────── */
+    .subscribe-block {
+      margin-bottom: 80px;
+    }
+    .subscribe-block h1 {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+    .subscribe-block p {
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--blue);
+      opacity: 0.6;
+      margin-bottom: 28px;
+      max-width: 480px;
+    }
+
+    .subscribe-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .subscribe-form input[type="email"] {
+      flex: 1;
+      min-width: 220px;
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: var(--blue);
+      background: var(--bg);
+      border: 1.5px solid rgba(0, 107, 238, 0.25);
+      border-radius: 999px;
+      padding: 11px 20px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .subscribe-form input[type="email"]::placeholder { color: rgba(0, 107, 238, 0.3); }
+    .subscribe-form input[type="email"]:focus { border-color: var(--blue); }
+    .subscribe-form button {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--blue);
+      border: none;
+      border-radius: 999px;
+      padding: 11px 24px;
+      cursor: pointer;
+      transition: opacity 0.18s;
+      white-space: nowrap;
+    }
+    .subscribe-form button:hover { opacity: 0.8; }
+
+    /* ── DIVIDER ──────────────────────────────── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid rgba(0, 107, 238, 0.12);
+      margin-bottom: 48px;
+    }
+
+    /* ── LATEST POST (open by default) ────────── */
+    .post-latest {
+      margin-bottom: 56px;
+    }
+    .post-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .post-date {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pink);
+    }
+    .post-issue {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(0, 107, 238, 0.35);
+    }
+    .post-title {
+      font-family: var(--sans);
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--blue);
+      margin-bottom: 24px;
+    }
+    .post-body {
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.8;
+      color: var(--blue);
+    }
+    .post-body p { margin-bottom: 16px; }
+    .post-body p:last-child { margin-bottom: 0; }
+
+    /* ── ARCHIVE LIST ─────────────────────────── */
+    .archive-heading {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0, 107, 238, 0.4);
+      margin-bottom: 16px;
+    }
+
+    .archive-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .archive-item {
+      border-top: 1px solid rgba(0, 107, 238, 0.1);
+    }
+    .archive-item:last-child { border-bottom: 1px solid rgba(0, 107, 238, 0.1); }
+
+    /* The clickable header row */
+    .archive-trigger {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      text-align: left;
+      color: var(--blue);
+      transition: opacity 0.18s;
+    }
+    .archive-trigger:hover { opacity: 0.6; }
+
+    .archive-trigger .arc-date {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--pink);
+      flex-shrink: 0;
+      min-width: 90px;
+    }
+    .archive-trigger .arc-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--blue);
+      flex: 1;
+    }
+    .archive-trigger .arc-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease;
+    }
+    .archive-item.open .arc-icon {
+      transform: rotate(45deg);
+    }
+
+    /* Expandable body */
+    .archive-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .archive-item.open .archive-body {
+      max-height: 2000px;
+    }
+    .archive-body-inner {
+      padding: 4px 0 28px;
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--blue);
+    }
+    .archive-body-inner p { margin-bottom: 14px; }
+    .archive-body-inner p:last-child { margin-bottom: 0; }
+
+    /* Images inside posts */
+    .post-body img,
+    .archive-body-inner img {
+      width: 100%;
+      border-radius: 8px;
+      margin: 24px 0;
+      display: block;
+    }
+
+    /* ── FOOTER ───────────────────────────────── */
+    footer {
+      padding: 32px var(--pad);
+      border-top: 1px solid rgba(0, 107, 238, 0.1);
+    }
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--pink);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────── -->
+<header id="site-header">
+  <div class="header-left">
+    <span class="avatar-dot"></span>
+    <a href="index.html" class="site-name">Henrique Athayde</a>
+  </div>
+  <div class="header-right">
+    <a class="nav-btn" href="index.html">Work</a>
+    <a class="nav-btn" href="index.html#about-trigger">About</a>
+    <a class="nav-btn current" href="newsletter.html">Newsletter</a>
+    <a class="nav-btn" href="https://instagram.com/henriqueathayde" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ── SUBSCRIBE ────────────────────────── -->
+  <div class="subscribe-block">
+    <h1>Letters from the studio.</h1>
+    <p>Occasional notes on illustration, process, and whatever is on the drawing board. No schedule, no noise.</p>
+    <!-- ✏️ Replace YOUR-BUTTONDOWN-USERNAME with your actual Buttondown username -->
+    <form
+      class="subscribe-form"
+      action="https://buttondown.com/api/emails/embed-subscribe/YOUR-BUTTONDOWN-USERNAME"
+      method="post"
+      target="_blank"
+    >
+      <input type="email" name="email" placeholder="your@email.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ── LATEST POST ──────────────────────── -->
+  <!-- ✏️ Replace this with your actual latest newsletter content -->
+  <div class="post-latest">
+    <div class="post-meta">
+      <span class="post-date">Feb 2026</span>
+      <span class="post-issue">No. 12</span>
+    </div>
+    <h2 class="post-title">On drawing slowly in a fast world</h2>
+    <div class="post-body">
+      <p>I've been thinking about pace a lot lately. Not the pace of production — how many pieces, how many posts, how many impressions — but the pace of the work itself. The time it takes to actually look at something before drawing it.</p>
+      <p>Last month I spent three hours on a single hand. Not because it was technically difficult, but because I kept stopping to look. There's a version of that hand I could have done in twenty minutes. It would have been correct. This one felt like something.</p>
+      <p>I'm not sure what the practical takeaway is. I don't think slowness is inherently better. But I've noticed that the pieces I feel best about are the ones where I lost track of time — not because I was in flow, exactly, but because I was genuinely unsure what came next.</p>
+    </div>
+  </div>
+
+  <!-- ── ARCHIVE ───────────────────────────── -->
+  <p class="archive-heading">Earlier issues</p>
+  <!-- ✏️ Add or remove archive items below. Copy the <li> block to add a new one. -->
+  <ul class="archive-list" id="archive-list">
+
+    <li class="archive-item">
+      <button class="archive-trigger">
+        <span class="arc-date">Jan 2026</span>
+        <span class="arc-title">What I learned from finishing things badly</span>
+        <span class="arc-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </button>
+      <div class="archive-body">
+        <div class="archive-body-inner">
+          <p>There's a drawer in my studio full of unfinished pieces. Some are halfway through inking, some are just loose sketches that seemed promising two years ago. I used to feel guilty about it. Now I think the drawer is doing its job.</p>
+          <p>Finishing badly — pushing something to completion when it isn't working — is underrated as a skill. You learn things from a finished failure that you can't learn from an abandoned one. Where exactly it went wrong. Whether the problem was the idea or the execution. Whether you'd make the same choices again.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="archive-item">
+      <button class="archive-trigger">
+        <span class="arc-date">Nov 2025</span>
+        <span class="arc-title">Reference, influence, and the line between them</span>
+        <span class="arc-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </button>
+      <div class="archive-body">
+        <div class="archive-body-inner">
+          <p>Someone asked me recently whether I worry about my influences showing too clearly in my work. I had to think about it. The honest answer is: sometimes, but less than I used to.</p>
+          <p>I've started thinking about influence less as something that contaminates the work and more as a medium in itself. The choices you make about what to absorb, what to reject, what to transform — those are creative acts. Nobody arrives at a visual language from nowhere.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="archive-item">
+      <button class="archive-trigger">
+        <span class="arc-date">Sep 2025</span>
+        <span class="arc-title">A few things on my desk right now</span>
+        <span class="arc-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </button>
+      <div class="archive-body">
+        <div class="archive-body-inner">
+          <p>A sketchbook I've been using only for hands. A set of Holbein gouaches I bought in Tokyo three years ago that I'm finally getting through. A postcard from a friend in Lisbon with a drawing of a cat on the back. The usual chaos of project folders.</p>
+          <p>I find it useful to take stock occasionally. Not as a productivity exercise, but just to notice what's actually present in the room where the work happens.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="archive-item">
+      <button class="archive-trigger">
+        <span class="arc-date">Jul 2025</span>
+        <span class="arc-title">Why I keep coming back to gouache</span>
+        <span class="arc-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </button>
+      <div class="archive-body">
+        <div class="archive-body-inner">
+          <p>It doesn't forgive you. You can rework it when it's wet, but once it dries, it has a kind of integrity to it. The decisions feel permanent in a way that digital work rarely does for me. I think I need that friction.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="archive-item">
+      <button class="archive-trigger">
+        <span class="arc-date">May 2025</span>
+        <span class="arc-title">On client work and keeping a practice alive</span>
+        <span class="arc-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </button>
+      <div class="archive-body">
+        <div class="archive-body-inner">
+          <p>The tension between commercial work and personal work is real, but I think it's often described wrong. The problem isn't that client work kills your creative instincts. It's that it fills up the time and energy you'd otherwise use to exercise them.</p>
+          <p>The solution I've settled on isn't a ratio or a schedule. It's just protecting a small amount of time every week that doesn't have a deliverable attached to it. Small, but non-negotiable.</p>
+        </div>
+      </div>
+    </li>
+
+  </ul>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer>
+  <span class="footer-copy" id="footer-copy"></span>
+</footer>
+
+<script>
+  // ── SCROLL BORDER ─────────────────────────────────────────────────────────
+  window.addEventListener("scroll", () => {
+    document.getElementById("site-header")
+      .classList.toggle("scrolled", window.scrollY > 10);
+  }, { passive: true });
+
+  // ── FOOTER ────────────────────────────────────────────────────────────────
+  document.getElementById("footer-copy").textContent =
+    `© ${new Date().getFullYear()} All Work Henrique Athayde`;
+
+  // ── ARCHIVE ACCORDION ─────────────────────────────────────────────────────
+  document.querySelectorAll(".archive-trigger").forEach(trigger => {
+    trigger.addEventListener("click", () => {
+      const item = trigger.closest(".archive-item");
+      const isOpen = item.classList.contains("open");
+      // Close all
+      document.querySelectorAll(".archive-item").forEach(i => i.classList.remove("open"));
+      // Toggle clicked one
+      if (!isOpen) item.classList.add("open");
+    });
+  });
+</script>
+</body>
+</html>

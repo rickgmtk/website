@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Henrique Athayde</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Reddit+Mono:wght@300;400;500;600&family=Epilogue:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #FEFCF5;
+      --blue:    #006BEE;
+      --green:   #42DC5A;
+      --pink:    #FF8356;
+      --fg-muted: rgba(0, 107, 238, 0.4);
+      --mono: 'Reddit Mono', monospace;
+      --sans: 'Epilogue', sans-serif;
+      --pad: clamp(48px, 7vw, 128px);
+      --gap: 16px;
+      --radius: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--blue);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      padding: 26px var(--pad);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    header.scrolled { border-color: rgba(0, 107, 238, 0.15); }
+
+    /* Left: avatar + name */
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar-dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      display: block;
+      overflow: hidden;
+    }
+    .avatar-dot img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .site-name {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--blue);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    /* Right: nav links */
+    .header-right { display: flex; align-items: center; gap: 0; }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--blue);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.18s, background 0.18s;
+      white-space: nowrap;
+    }
+    /* All nav buttons: pink text on hover, no pill */
+    .nav-btn:hover { color: var(--pink); background: none; }
+    /* Contact "copied" state */
+    #copy-email-btn.copied { color: var(--green); }
+
+    /* ── FILTERS (hidden for now, kept for future use) ── */
+    .filter-bar { display: none; }
+
+    .filter-btn {
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--blue);
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: color 0.18s, background 0.18s;
+      opacity: 0.45;
+    }
+    /* Hover: pink text, no pill */
+    .filter-btn:hover { color: var(--pink); background: none; opacity: 1; }
+    /* Active/selected: blue pill, bg-coloured text */
+    .filter-btn.active {
+      background: var(--blue);
+      color: var(--bg);
+      opacity: 1;
+    }
+
+    /* ── MAIN GRID ───────────────────────────────── */
+    main { padding: 0 var(--pad) 140px; }
+
+    .masonry {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--gap);
+    }
+    @media (max-width: 1100px) { .masonry { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .masonry { grid-template-columns: 1fr; } }
+
+    .masonry-item {
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      display: block;
+      /* Span support */
+    }
+    /* span-2 takes 2 columns, span-3 takes all 3 */
+    .masonry-item.span-2 { grid-column: span 2; }
+    .masonry-item.span-3 { grid-column: span 3; }
+    @media (max-width: 1100px) {
+      .masonry-item.span-2 { grid-column: span 2; }
+      .masonry-item.span-3 { grid-column: span 2; }
+    }
+    @media (max-width: 640px) {
+      .masonry-item.span-2,
+      .masonry-item.span-3 { grid-column: span 1; }
+    }
+
+    .placeholder-box {
+      width: 100%;
+      display: block;
+      border-radius: var(--radius);
+    }
+    /* Placeholder tints */
+    .accent-1 .placeholder-box { background: #b8cfe8; }
+    .accent-2 .placeholder-box { background: #a8eab6; }
+    .accent-3 .placeholder-box { background: #f0b4dc; }
+    .accent-4 .placeholder-box { background: #c4d4e4; }
+
+    .masonry-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: var(--radius);
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .masonry-item:hover img { transform: scale(1.03); }
+    .masonry-item:hover .placeholder-box { transform: scale(1.03); }
+
+    /* Pill hover — rises from bottom centre */
+    .item-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 14px;
+      opacity: 0;
+      background: none;
+      transition: opacity 0.22s ease;
+      pointer-events: none;
+    }
+    .masonry-item:hover .item-overlay { opacity: 1; }
+
+    .item-pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transform: translateY(8px);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+    }
+    .masonry-item:hover .item-pill { transform: translateY(0); }
+
+    .accent-1 .item-pill,
+    .accent-2 .item-pill,
+    .accent-3 .item-pill,
+    .accent-4 .item-pill { background: var(--blue); color: var(--bg); }
+
+    .masonry-item.hidden { display: none; }
+
+    /* ── FOOTER ──────────────────────────────────── */
+    footer {
+      padding: 32px var(--pad);
+      border-top: 1px solid rgba(0, 107, 238, 0.15);
+      display: flex;
+      align-items: center;
+    }
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--pink);
+    }
+    .back-to-top {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 200;
+      width: 56px;
+      height: 56px;
+      background: var(--blue);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s, background 0.18s;
+    }
+    .back-to-top.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .back-to-top:hover { background: #2f6ab8; }
+
+    /* ── LIGHTBOX ─────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(232, 235, 239, 0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-inner {
+      max-width: min(820px, 90vw);
+      width: 100%;
+      text-align: center;
+    }
+    .lightbox-inner img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      display: block;
+    }
+    .lightbox-caption {
+      font-family: var(--mono);
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--blue);
+      opacity: 1;
+      margin-top: 18px;
+    }
+
+    .lb-close {
+      position: fixed;
+      top: 24px;
+      right: 32px;
+      background: var(--blue);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--bg);
+      opacity: 1;
+      transition: opacity 0.2s;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lb-close:hover { opacity: 0.7; }
+
+    .lb-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 20px;
+      color: var(--blue);
+      opacity: 0.2;
+      transition: opacity 0.2s;
+      padding: 20px;
+    }
+    .lb-arrow:hover { opacity: 0.65; }
+    .lb-arrow.prev { left: 8px; }
+    .lb-arrow.next { right: 8px; }
+
+    /* ── ABOUT MODAL ─────────────────────────────── */
+    .about-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 399;
+      background-color: rgba(66, 220, 90, 1.0);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.35'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .about-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .about-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(40px, 10vw, 160px) clamp(40px, 12vw, 200px);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px) scale(0.98);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .about-modal.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0) scale(1);
+    }
+
+    .about-card-wrapper {
+      position: relative;
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    /* Floating pill — blue bg, green text */
+    .about-close-btn {
+      background: var(--blue);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--green);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .about-close-btn:hover { opacity: 0.75; }
+
+    .about-card {
+      background: var(--bg);
+      border-radius: 16px;
+      width: 100%;
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .about-hero-img {
+      width: calc(100% - 48px);
+      margin: 24px 24px 0;
+      aspect-ratio: 16/7;
+      background: rgba(0, 107, 238, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      display: block;
+    }
+    .about-hero-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
+    .about-body {
+      display: grid;
+      grid-template-columns: 1.8fr 0.8fr 0.8fr;
+      column-gap: 0;
+      row-gap: 0;
+      padding: 48px;
+    }
+    /* Dividers to create equal visual gutters between all three columns */
+    .about-text-col {
+      padding-right: 48px;
+      border-right: 1px solid rgba(0, 107, 238, 0.1);
+    }
+    .about-services-col {
+      padding-left: 48px;
+      padding-right: 48px;
+      border-right: 1px solid rgba(0, 107, 238, 0.1);
+    }
+    .about-links-col {
+      padding-left: 48px;
+    }
+    @media (max-width: 800px) {
+      .about-body { grid-template-columns: 1fr; }
+      .about-text-col { padding-right: 0; border-right: none; border-bottom: 1px solid rgba(0,107,238,0.1); padding-bottom: 36px; }
+      .about-services-col { padding-left: 0; padding-right: 0; border-right: none; border-bottom: 1px solid rgba(0,107,238,0.1); padding-top: 36px; padding-bottom: 36px; }
+      .about-links-col { padding-left: 0; padding-top: 36px; }
+      .about-hero-img { aspect-ratio: 4/3; }
+    }
+
+    /* Bio text — blue */
+    .about-text-col p {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--blue);
+      margin-bottom: 14px;
+    }
+    .about-text-col p:last-child { margin-bottom: 0; }
+
+    /* Services label — green 100% opaque */
+    .about-services-col .about-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 12px;
+      display: block;
+    }
+    /* Elsewhere label — pink 100% opaque */
+    .about-links-col .about-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--pink);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .services-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .services-list li {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--green);
+      padding: 3px 0;
+    }
+
+    /* Links column — pink, Remix Icon arrow on external links */
+    .about-links-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .about-links-list li a {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--pink);
+      text-decoration: none;
+      padding: 3px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: opacity 0.18s;
+    }
+    .about-links-list li a:hover { opacity: 0.65; }
+    .about-links-list li a .ext-arrow {
+      display: inline-block;
+      opacity: 0;
+      transform: translate(-2px, 2px);
+      transition: opacity 0.18s, transform 0.18s;
+      flex-shrink: 0;
+    }
+    .about-links-list li a:hover .ext-arrow {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    /* ── MODE TOGGLE ─────────────────────────────── */
+    .mode-toggle {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      background: var(--blue);
+      border-radius: 999px;
+      padding: 6px;
+      gap: 2px;
+      box-shadow: 0 4px 20px rgba(0, 107, 238, 0.25);
+    }
+
+    .mode-btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(254, 252, 245, 0.45);
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+    .mode-btn svg { width: 18px; height: 18px; display: block; }
+    .mode-btn.active {
+      background: var(--bg);
+      color: var(--blue);
+    }
+    .mode-btn:not(.active):hover { color: rgba(254, 252, 245, 0.9); }
+
+    /* Tooltip above the button */
+    .mode-btn::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: var(--blue);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s, transform 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .mode-btn:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    /* ── PRACTICE MODE — orange palette inversion ─── */
+    body.mode-practice {
+      --blue: #FF8356;   /* orange replaces blue everywhere */
+      --pink: #006BEE;   /* blue replaces orange */
+    }
+    /* toggle pill shadow update */
+    body.mode-practice .mode-toggle {
+      box-shadow: 0 4px 20px rgba(255, 131, 86, 0.3);
+    }
+    /* active pill text must contrast against orange bg */
+    body.mode-practice .mode-btn.active {
+      color: #FF8356;
+    }
+    /* tooltip bg matches current blue var */
+    body.mode-practice .mode-btn::after {
+      background: var(--blue);
+      color: var(--bg);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────── -->
+<header id="site-header">
+  <div class="header-left">
+    <!-- ✏️ Replace with <img src="images/avatar.jpg"> inside the span to use a real photo -->
+    <span class="avatar-dot" aria-label="Henrique Athayde"></span>
+    <a href="#" class="site-name">Henrique Athayde</a>
+  </div>
+  <div class="header-right">
+    <button class="nav-btn" id="about-trigger">About</button>
+    <button class="nav-btn" id="copy-email-btn">Contact</button>
+    <a class="nav-btn" href="newsletter.html" id="newsletter-link">Newsletter</a>
+    <a class="nav-btn" id="insta-link" href="#" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</header>
+
+<!-- ── FILTERS (above grid, centered) ────── -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="featured">Featured</button>
+  <button class="filter-btn" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="archives">Archive</button>
+</div>
+
+<!-- ── MASONRY GRID ───────────────────────── -->
+<main>
+  <div class="masonry" id="masonry-grid"></div>
+</main>
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer>
+  <span class="footer-copy" id="footer-copy"></span>
+</footer>
+
+<!-- ── BACK TO TOP ────────────────────────── -->
+<button class="back-to-top" id="back-to-top" aria-label="Back to top">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <path d="M11 17V5M11 5L5.5 10.5M11 5L16.5 10.5" stroke="#E8EBEF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<!-- ── LIGHTBOX ───────────────────────────── -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+  <button class="lb-close" id="lb-close">ESC to close <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+  <button class="lb-arrow prev" id="lb-prev">←</button>
+  <div class="lightbox-inner">
+    <img id="lb-img" src="" alt="" />
+    <p class="lightbox-caption" id="lb-caption"></p>
+  </div>
+  <button class="lb-arrow next" id="lb-next">→</button>
+</div>
+
+<!-- ── MODE TOGGLE ────────────────────────── -->
+<div class="mode-toggle" id="mode-toggle">
+  <button class="mode-btn active" id="mode-work" data-mode="work" data-label="Work">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2C8.44772 2 8 2.44772 8 3V4H5C3.89543 4 3 4.89543 3 6V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V6C21 4.89543 20.1046 4 19 4H16V3C16 2.44772 15.5523 2 15 2H9ZM10 4H14V5H10V4ZM5 6H19V9H5V6ZM5 11H19V19H5V11Z"/></svg>
+  </button>
+  <button class="mode-btn" id="mode-practice" data-mode="practice" data-label="Practice">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C12.8284 22 13.5 21.3284 13.5 20.5C13.5 20.1238 13.3526 19.7826 13.1127 19.5288C12.8802 19.2826 12.7414 18.9483 12.7414 18.5862C12.7414 17.7578 13.4131 17.0862 14.2414 17.0862H16C19.3137 17.0862 22 14.3999 22 11.0862C22 6.06476 17.5228 2 12 2ZM7 13C6.17157 13 5.5 12.3284 5.5 11.5C5.5 10.6716 6.17157 10 7 10C7.82843 10 8.5 10.6716 8.5 11.5C8.5 12.3284 7.82843 13 7 13ZM10 8.5C10 9.32843 9.32843 10 8.5 10C7.67157 10 7 9.32843 7 8.5C7 7.67157 7.67157 7 8.5 7C9.32843 7 10 7.67157 10 8.5ZM15.5 7C15.5 7.82843 14.8284 8.5 14 8.5C13.1716 8.5 12.5 7.82843 12.5 7C12.5 6.17157 13.1716 5.5 14 5.5C14.8284 5.5 15.5 6.17157 15.5 7ZM17 13C16.1716 13 15.5 12.3284 15.5 11.5C15.5 10.6716 16.1716 10 17 10C17.8284 10 18.5 10.6716 18.5 11.5C18.5 12.3284 17.8284 13 17 13Z"/></svg>
+  </button>
+</div>
+
+<!-- ── ABOUT BACKDROP ─────────────────────── -->
+<div class="about-backdrop" id="about-backdrop"></div>
+
+<!-- ── ABOUT MODAL ────────────────────────── -->
+<div class="about-modal" id="about-modal" role="dialog" aria-modal="true">
+  <div class="about-card-wrapper">
+
+    <button class="about-close-btn" id="about-close">
+      ESC to close
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="about-card">
+      <!-- ✏️ Replace "images/about-hero.jpg" with your real header image -->
+      <div class="about-hero-img">
+        <img src="images/about-hero.jpg" alt="Henrique Athayde"
+             onerror="this.parentElement.style.background='rgba(0,107,238,0.1)'; this.style.display='none'" />
+      </div>
+
+      <div class="about-body">
+        <div class="about-text-col">
+          <!-- ✏️ Edit your bio below -->
+          <p>Hi! I'm Henrique Athayde, an independent artist and designer specializing in illustration, branding and character design.</p>
+          <p>For the past decade, I've been working with clients big and small in a range of industries, including entertainment, technology, publishing and board games.</p>
+          <p>In my work, I aim to combine precise, disciplined shapes and constructions with the natural imperfections and textures we only get from putting pencil and paint to paper. Unmistakably human-made, for other people to enjoy.</p>
+        </div>
+
+        <div class="about-services-col">
+          <span class="about-label">Services</span>
+          <!-- ✏️ Edit your services below -->
+          <ul class="services-list">
+            <li>Art Direction</li>
+            <li>Illustration</li>
+            <li>Graphic Design</li>
+            <li>Web Design</li>
+            <li>Branding</li>
+            <li>Icon Design</li>
+            <li>Character Design</li>
+            <li>Packaging</li>
+            <li>Visual Development</li>
+            <li>3D Visualization</li>
+          </ul>
+        </div>
+
+        <div class="about-links-col">
+          <span class="about-label">Elsewhere</span>
+          <ul class="about-links-list">
+            <li><a href="#" id="about-contact-link">Contact</a></li>
+            <li><a href="newsletter.html" id="about-newsletter-link">Newsletter <svg class="ext-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a></li>
+            <li><a href="#" id="about-insta-link" target="_blank" rel="noopener">Instagram <svg class="ext-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // =========================================================================
+  // WORK PROJECTS — commercial portfolio
+  // Add new entries at the TOP to control display order.
+  // src   → "images/work/filename.jpg"
+  // title → shown on hover + in lightbox
+  // span  → 1 (one column), 2 (two columns), 3 (full width)
+  // aspect→ height ÷ width, e.g. 0.75 for landscape, 1.33 for portrait.
+  //         Used as placeholder colour until the real image loads.
+  //         Leave at 0.75 if unsure.
+  // =========================================================================
+  const WORK = [
+    { src: "images/work/project-01.jpg", title: "Project Title 01", span: 1, aspect: 0.72 },
+    { src: "images/work/project-02.jpg", title: "Project Title 02", span: 1, aspect: 1.00 },
+    { src: "images/work/project-03.jpg", title: "Project Title 03", span: 2, aspect: 0.40 },
+    { src: "images/work/project-04.jpg", title: "Project Title 04", span: 1, aspect: 0.80 },
+    { src: "images/work/project-05.jpg", title: "Project Title 05", span: 3, aspect: 0.30 },
+    { src: "images/work/project-06.jpg", title: "Project Title 06", span: 1, aspect: 0.90 },
+    { src: "images/work/project-07.jpg", title: "Project Title 07", span: 1, aspect: 0.70 },
+    { src: "images/work/project-08.jpg", title: "Project Title 08", span: 1, aspect: 1.20 },
+    { src: "images/work/project-09.jpg", title: "Project Title 09", span: 1, aspect: 1.00 },
+    { src: "images/work/project-10.jpg", title: "Project Title 10", span: 1, aspect: 1.35 },
+    { src: "images/work/project-11.jpg", title: "Project Title 11", span: 1, aspect: 1.60 },
+    { src: "images/work/project-12.jpg", title: "Project Title 12", span: 1, aspect: 1.15 },
+    { src: "images/work/project-13.jpg", title: "Project Title 13", span: 1, aspect: 1.45 },
+    { src: "images/work/project-14.jpg", title: "Project Title 14", span: 1, aspect: 1.00 },
+    { src: "images/work/project-15.jpg", title: "Project Title 15", span: 1, aspect: 1.25 },
+    { src: "images/work/project-16.jpg", title: "Project Title 16", span: 1, aspect: 1.55 },
+    { src: "images/work/project-17.jpg", title: "Project Title 17", span: 1, aspect: 1.10 },
+    { src: "images/work/project-18.jpg", title: "Project Title 18", span: 1, aspect: 1.35 },
+  ];
+
+  // =========================================================================
+  // PRACTICE — personal work, paintings, sketchbook, etc.
+  // Add new entries at the TOP — newest work appears first automatically.
+  // src   → "images/practice/filename.jpg"
+  // title → shown on hover + in lightbox
+  // span  → 1, 2, or 3 columns wide
+  // aspect→ height ÷ width placeholder. Leave at 0.75 if unsure.
+  // =========================================================================
+  const PRACTICE = [
+    { src: "images/practice/sketch-01.jpg", title: "Sketch 01", span: 1, aspect: 1.30 },
+    { src: "images/practice/sketch-02.jpg", title: "Sketch 02", span: 1, aspect: 1.40 },
+    { src: "images/practice/sketch-03.jpg", title: "Sketch 03", span: 1, aspect: 1.10 },
+    { src: "images/practice/sketch-04.jpg", title: "Sketch 04", span: 1, aspect: 1.50 },
+    { src: "images/practice/sketch-05.jpg", title: "Sketch 05", span: 2, aspect: 0.45 },
+    { src: "images/practice/sketch-06.jpg", title: "Sketch 06", span: 1, aspect: 0.68 },
+    { src: "images/practice/sketch-07.jpg", title: "Sketch 07", span: 1, aspect: 1.30 },
+    { src: "images/practice/sketch-08.jpg", title: "Sketch 08", span: 1, aspect: 0.70 },
+    { src: "images/practice/sketch-09.jpg", title: "Sketch 09", span: 1, aspect: 0.60 },
+    { src: "images/practice/sketch-10.jpg", title: "Sketch 10", span: 1, aspect: 0.90 },
+    { src: "images/practice/sketch-11.jpg", title: "Sketch 11", span: 1, aspect: 0.78 },
+    { src: "images/practice/sketch-12.jpg", title: "Sketch 12", span: 1, aspect: 0.66 },
+    { src: "images/practice/sketch-13.jpg", title: "Sketch 13", span: 1, aspect: 0.80 },
+    { src: "images/practice/sketch-14.jpg", title: "Sketch 14", span: 1, aspect: 0.72 },
+    { src: "images/practice/sketch-15.jpg", title: "Sketch 15", span: 1, aspect: 0.85 },
+    { src: "images/practice/sketch-16.jpg", title: "Sketch 16", span: 1, aspect: 0.95 },
+    { src: "images/practice/sketch-17.jpg", title: "Sketch 17", span: 1, aspect: 1.20 },
+    { src: "images/practice/sketch-18.jpg", title: "Sketch 18", span: 1, aspect: 1.00 },
+  ];
+
+  // Combine for lightbox — work items tagged, practice items kept in order
+  const ALL_ITEMS = [
+    ...WORK.map(p => ({ ...p, mode: "work" })),
+    ...PRACTICE.map(p => ({ ...p, mode: "practice" })),
+  ];
+
+  const EMAIL      = "hathayd3@gmail.com";           // ✏️ your email
+  const INSTA      = "https://instagram.com/henriqueathayde"; // ✏️ your instagram
+  const NEWSLETTER = "#";                             // ✏️ your newsletter URL
+
+  document.getElementById("insta-link").href = INSTA;
+  document.getElementById("about-insta-link").href = INSTA;
+
+  // About contact link copies email same as header button
+  document.getElementById("about-contact-link").addEventListener("click", async (e) => {
+    e.preventDefault();
+    try { await navigator.clipboard.writeText(EMAIL); } catch {
+      const t = document.createElement("textarea");
+      t.value = EMAIL; document.body.appendChild(t); t.select();
+      document.execCommand("copy"); document.body.removeChild(t);
+    }
+    const el = document.getElementById("about-contact-link");
+    el.textContent = "Copied!";
+    setTimeout(() => { el.textContent = "Contact"; }, 2500);
+  });
+
+  // ── BUILD GRID ────────────────────────────────────────────────────────────
+  const ACCENTS = ["accent-1", "accent-2", "accent-3", "accent-4"];
+
+  function makeAccentPool(len) {
+    const pool = Array.from({ length: len }, (_, i) => ACCENTS[i % ACCENTS.length]);
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool;
+  }
+  const accentPool = makeAccentPool(ALL_ITEMS.length);
+
+  const grid = document.getElementById("masonry-grid");
+  let visibleItems = [];
+
+  function buildGrid() {
+    grid.innerHTML = "";
+    ALL_ITEMS.forEach((proj, i) => {
+      const div = document.createElement("div");
+      const spanClass = proj.span === 2 ? " span-2" : proj.span === 3 ? " span-3" : "";
+      div.className = `masonry-item ${accentPool[i]}${spanClass}`;
+      div.dataset.index = i;
+      div.dataset.mode = proj.mode;
+
+      const placeholderStyle = `padding-bottom:${((proj.aspect || 0.75) * 100).toFixed(1)}%`;
+      div.innerHTML = `
+        <div class="placeholder-box" style="${placeholderStyle}"></div>
+        <div class="item-overlay"><span class="item-pill">${proj.title}</span></div>
+      `;
+
+      const testImg = new Image();
+      testImg.onload = () => {
+        const img = document.createElement("img");
+        img.src = proj.src; img.alt = proj.title; img.loading = "lazy";
+        const ph = div.querySelector(".placeholder-box");
+        if (ph) div.replaceChild(img, ph);
+      };
+      testImg.src = proj.src;
+      div.addEventListener("click", () => openLightbox(i));
+      grid.appendChild(div);
+    });
+  }
+  buildGrid();
+
+  // ── MODE TOGGLE ───────────────────────────────────────────────────────────
+  let currentMode = "work";
+
+  function applyMode(mode) {
+    currentMode = mode;
+    document.body.classList.toggle("mode-practice", mode === "practice");
+    visibleItems = [];
+    grid.querySelectorAll(".masonry-item").forEach((el, i) => {
+      const show = ALL_ITEMS[i].mode === mode;
+      el.classList.toggle("hidden", !show);
+      if (show) visibleItems.push(i);
+    });
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+  }
+
+  document.getElementById("mode-work").addEventListener("click", () => applyMode("work"));
+  document.getElementById("mode-practice").addEventListener("click", () => applyMode("practice"));
+  applyMode("work");
+
+  // ── FILTERS (hidden, kept for future use) ─────────────────────────────────
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // ── LIGHTBOX ──────────────────────────────────────────────────────────────
+  const lightbox  = document.getElementById("lightbox");
+  const lbImg     = document.getElementById("lb-img");
+  const lbCaption = document.getElementById("lb-caption");
+  let lbIndex = 0;
+
+  function openLightbox(projIdx) {
+    const pos = visibleItems.indexOf(projIdx);
+    if (pos === -1) return;
+    lbIndex = pos; renderLb();
+    lightbox.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function renderLb() {
+    const p = ALL_ITEMS[visibleItems[lbIndex]];
+    lbImg.src = p.src; lbCaption.textContent = p.title;
+  }
+  function closeLb() { lightbox.classList.remove("open"); document.body.style.overflow = ""; }
+
+  document.getElementById("lb-close").addEventListener("click", closeLb);
+  document.getElementById("lb-prev").addEventListener("click", () => { lbIndex = (lbIndex - 1 + visibleItems.length) % visibleItems.length; renderLb(); });
+  document.getElementById("lb-next").addEventListener("click", () => { lbIndex = (lbIndex + 1) % visibleItems.length; renderLb(); });
+  lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLb(); });
+
+  // ── FOOTER ────────────────────────────────────────────────────────────────
+  document.getElementById("footer-copy").textContent =
+    `© ${new Date().getFullYear()} All Work Henrique Athayde`;
+
+  // ── ABOUT MODAL ───────────────────────────────────────────────────────────
+  const aboutModal    = document.getElementById("about-modal");
+  const aboutBackdrop = document.getElementById("about-backdrop");
+
+  document.getElementById("about-trigger").addEventListener("click", () => {
+    aboutModal.classList.add("open");
+    aboutBackdrop.classList.add("open");
+    document.body.style.overflow = "hidden";
+  });
+  function closeAbout() {
+    aboutModal.classList.remove("open");
+    aboutBackdrop.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  document.getElementById("about-close").addEventListener("click", closeAbout);
+  aboutBackdrop.addEventListener("click", closeAbout);
+
+  // ── CONTACT / COPY EMAIL ─────────────────────────────────────────────────
+  const contactBtn = document.getElementById("copy-email-btn");
+  let resetTimer;
+
+  contactBtn.addEventListener("mouseenter", () => {
+    if (!contactBtn.classList.contains("copied")) contactBtn.textContent = "Copy Email";
+  });
+  contactBtn.addEventListener("mouseleave", () => {
+    if (!contactBtn.classList.contains("copied")) contactBtn.textContent = "Contact";
+  });
+  contactBtn.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(EMAIL); } catch {
+      const t = document.createElement("textarea");
+      t.value = EMAIL; document.body.appendChild(t); t.select();
+      document.execCommand("copy"); document.body.removeChild(t);
+    }
+    contactBtn.textContent = "Copied";
+    contactBtn.classList.add("copied");
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => {
+      contactBtn.classList.remove("copied");
+      contactBtn.textContent = "Contact";
+    }, 2500);
+  });
+
+  // ── KEYBOARD ─────────────────────────────────────────────────────────────
+  document.addEventListener("keydown", e => {
+    if (lightbox.classList.contains("open")) {
+      if (e.key === "Escape")     closeLb();
+      if (e.key === "ArrowLeft")  { lbIndex = (lbIndex - 1 + visibleItems.length) % visibleItems.length; renderLb(); }
+      if (e.key === "ArrowRight") { lbIndex = (lbIndex + 1) % visibleItems.length; renderLb(); }
+    } else if (aboutModal.classList.contains("open")) {
+      if (e.key === "Escape") closeAbout();
+    }
+  });
+
+  // ── SCROLL ───────────────────────────────────────────────────────────────
+  const siteHeader = document.getElementById("site-header");
+  const backToTop  = document.getElementById("back-to-top");
+
+  window.addEventListener("scroll", () => {
+    siteHeader.classList.toggle("scrolled", window.scrollY > 10);
+    backToTop.classList.toggle("visible", window.scrollY > 400);
+  }, { passive: true });
+
+  backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+</script>
+</body>
+</html>
